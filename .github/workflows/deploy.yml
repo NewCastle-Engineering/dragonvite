@@ -8,7 +8,7 @@ jobs:
   deploy:
     name: Deploy to Oracle Cloud
     runs-on: ubuntu-latest
-    needs: [] # Add lint/test/build job names here once you want to gate deploys
+    if: ${{ secrets.ORACLE_HOST != '' }}
 
     steps:
       - name: Checkout
