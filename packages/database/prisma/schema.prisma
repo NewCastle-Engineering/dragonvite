@@ -1,0 +1,121 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+ provider = "prisma-client-js"
+}
+
+datasource db {
+ provider  = "postgresql"
+ url       = env("DATABASE_URL")
+ directUrl = env("DIRECT_URL")
+}
+
+// User model - managed by Supabase Auth
+// This is a reference model for type safety
+model User {
+ id        String   @id @default(cuid())
+ email     String   @unique
+ name      String?
+ avatar    String?
+ role      UserRole @default(PLAYER)
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+
+ // Relations
+ profile  Profile?
+ gameData GameData?
+ messages Message[]
+ articles Article[]
+
+ @@index([email])
+ @@map("users")
+}
+
+model Profile {
+ id        String   @id @default(cuid())
+ userId    String   @unique
+ user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+ bio       String?
+ location  String?
+ website   String?
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+
+ @@map("profiles")
+}
+
+model GameData {
+ id         String   @id @default(cuid())
+ userId     String   @unique
+ user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+ level      Int      @default(1)
+ experience Int      @default(0)
+ health     Int      @default(100)
+ mana       Int      @default(50)
+ gold       Int      @default(0)
+ position   Json? // { x: number, y: number }
+ inventory  Json? // Array of item IDs
+ createdAt  DateTime @default(now())
+ updatedAt  DateTime @updatedAt
+
+ @@index([userId])
+ @@map("game_data")
+}
+
+model Message {
+ id        String   @id @default(cuid())
+ userId    String
+ user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+ content   String
+ createdAt DateTime @default(now())
+
+ @@index([userId])
+ @@index([createdAt])
+ @@map("messages")
+}
+
+model Article {
+ id        String   @id @default(cuid())
+ title     String
+ content   String
+ authorId  String
+ author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+ published Boolean  @default(false)
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+
+ @@index([authorId])
+ @@index([published])
+ @@map("articles")
+}
+
+model Job {
+ id        String    @id @default(cuid())
+ type      String // email, lLM, leaderboard, etc.
+ data      Json // Job payload
+ status    JobStatus @default(PENDING)
+ attempts  Int       @default(0)
+ error     String?
+ createdAt DateTime  @default(now())
+ updatedAt DateTime  @updatedAt
+
+ @@index([status])
+ @@index([createdAt])
+ @@map("jobs")
+}
+
+// Enums
+enum UserRole {
+ PLAYER
+ MODERATOR
+ ADMIN
+}
+
+enum JobStatus {
+ PENDING
+ PROCESSING
+ COMPLETED
+ FAILED
+ RETRY
+}

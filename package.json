@@ -1,0 +1,36 @@
+{
+  "name": "dragonvite",
+  "version": "0.1.0",
+  "description": "Dragonvite - Monorepo scaffold with production-ready architecture",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "docker-compose up",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "test:e2e": "turbo run test:e2e",
+    "lint": "turbo run lint",
+    "format": "turbo run format && prettier --write './**/*.{json,md,yaml,yml}'",
+    "format:check": "prettier --check './**/*.{json,md,yaml,yml}'",
+    "type-check": "turbo run type-check",
+    "db:migrate": "pnpm --filter @dragonvite/database migrate",
+    "db:push": "pnpm --filter @dragonvite/database push",
+    "db:studio": "pnpm --filter @dragonvite/database studio",
+    "sonar": "sonar-scanner"
+  },
+  "devDependencies": {
+    "eslint": "^8.54.0",
+    "eslint-config-prettier": "^9.0.0",
+    "prettier": "^3.1.0",
+    "turbo": "^1.10.0",
+    "typescript": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=18.17.0",
+    "pnpm": ">=8.0.0"
+  }
+}

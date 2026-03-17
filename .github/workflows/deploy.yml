@@ -1,0 +1,32 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    name: Deploy to Oracle Cloud
+    runs-on: ubuntu-latest
+    needs: [] # Add lint/test/build job names here once you want to gate deploys
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.ORACLE_HOST }}
+          username: ${{ secrets.ORACLE_USER }}
+          key: ${{ secrets.ORACLE_SSH_KEY }}
+          script: |
+            cd /home/${{ secrets.ORACLE_USER }}/dragonvite
+            git pull origin main
+            docker compose pull
+            docker compose up -d --build
+            docker compose ps
+            echo "Waiting for health check..."
+            sleep 10
+            curl -f http://localhost/api/health || exit 1
+            echo "Deployment successful"

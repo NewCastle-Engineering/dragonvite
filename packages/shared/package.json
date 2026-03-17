@@ -1,0 +1,33 @@
+{
+  "name": "@dragonvite/shared",
+  "version": "0.1.0",
+  "description": "Shared types, constants, and utilities for Dragonvite",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./types": {
+      "types": "./dist/types/index.d.ts",
+      "default": "./dist/types/index.js"
+    },
+    "./constants": {
+      "types": "./dist/constants/index.d.ts",
+      "default": "./dist/constants/index.js"
+    },
+    "./utils": {
+      "types": "./dist/utils/index.d.ts",
+      "default": "./dist/utils/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc --noEmit && echo 'Shared package uses TypeScript - import directly from src'",
+    "lint": "eslint src --ext .ts",
+    "format": "prettier --write src",
+    "type-check": "tsc --noEmit"
+  },
+  "keywords": ["dragonvite", "shared"],
+  "author": "",
+  "license": "MIT"
+}

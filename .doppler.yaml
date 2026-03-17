@@ -1,0 +1,11 @@
+# Doppler Configuration for Dragonvite
+# https://docs.doppler.com/docs/doppler-yaml
+
+project: dragonvite
+config: dev
+
+# To use this:
+# 1. Install Doppler CLI: https://docs.doppler.com/docs/cli
+# 2. Run: doppler login
+# 3. For development: doppler run pnpm dev
+# 4. For running specific commands: doppler run pnpm build

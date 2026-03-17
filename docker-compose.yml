@@ -1,0 +1,138 @@
+version: '3.8'
+
+services:
+  # Redis - Cache & Job Queue Storage
+  redis:
+    image: redis:7-alpine
+    container_name: dragonvite-redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dragonvite-network
+
+  # Bull Board - BullMQ Job Queue UI
+  bull-board:
+    image: node:20-alpine
+    container_name: dragonvite-bull-board
+    working_dir: /app
+    ports:
+      - '3001:3001'
+    environment:
+      REDIS_URL: redis://redis:6379
+    command: >
+      sh -c "npm install -g @bull-board/express bull bullmq redis &&
+             node -e \"
+             const { createBullBoard } = require('@bull-board/express');
+             const { ExpressAdapter } = require('@bull-board/express');
+             const { BullMQAdapter } = require('@bull-board/bullmq');
+             const express = require('express');
+             const { Queue } = require('bullmq');
+             const app = express();
+             const connection = { host: 'redis', port: 6379 };
+             const serverAdapter = new ExpressAdapter();
+             createBullBoard({ queues: [new BullMQAdapter(new Queue('default', { connection }))], serverAdapter });
+             app.use('/admin/queues', serverAdapter.getRouter());
+             app.listen(3001, '0.0.0.0', () => console.log('Bull Board running on port 3001'));
+             \""
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - dragonvite-network
+
+  # Supabase (Placeholder - use managed Supabase)
+  # Note: In production, use Supabase cloud at https://supabase.com
+  # For local dev with real DB, install Supabase CLI and run `supabase start`
+
+  # FastAPI Backend
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dragonvite-backend
+    ports:
+      - '3000:3000'
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      HOST: 0.0.0.0
+      REDIS_URL: redis://redis:6379
+      DATABASE_URL: ${DATABASE_URL:-postgresql://user:password@db:5432/dragonvite}
+      CORS_ORIGIN: http://localhost
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-key-change-in-production}
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - dragonvite-network
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # SonarQube - Code Quality Analysis
+  sonarqube:
+    image: sonarqube:community
+    container_name: dragonvite-sonarqube
+    ports:
+      - '9000:9000'
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://sonarqube-db:5432/sonar
+      SONAR_JDBC_USERNAME: sonar
+      SONAR_JDBC_PASSWORD: sonar
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_logs:/opt/sonarqube/logs
+      - sonarqube_extensions:/opt/sonarqube/extensions
+    depends_on:
+      - sonarqube-db
+    networks:
+      - dragonvite-network
+
+  # SonarQube Database
+  sonarqube-db:
+    image: postgres:15-alpine
+    container_name: dragonvite-sonarqube-db
+    environment:
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: sonar
+      POSTGRES_DB: sonar
+    volumes:
+      - sonarqube_db_data:/var/lib/postgresql/data
+    networks:
+      - dragonvite-network
+
+  # Nginx - Reverse Proxy & Frontend Server
+  nginx:
+    image: nginx:alpine
+    container_name: dragonvite-nginx
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./apps/frontend/dist:/usr/share/nginx/html:ro
+    depends_on:
+      - backend
+    networks:
+      - dragonvite-network
+
+volumes:
+  redis_data:
+  sonarqube_data:
+  sonarqube_logs:
+  sonarqube_extensions:
+  sonarqube_db_data:
+
+networks:
+  dragonvite-network:
+    driver: bridge
