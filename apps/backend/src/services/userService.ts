@@ -3,8 +3,7 @@
  * Business logic for user operations
  */
 
-import { PrismaClient } from '@prisma/client';
-import { User } from '@dragonvite/shared';
+import { PrismaClient, User } from '@prisma/client';
 
 const prisma = new PrismaClient();
 

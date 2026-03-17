@@ -27,7 +27,13 @@
     "format": "prettier --write src",
     "type-check": "tsc --noEmit"
   },
-  "keywords": ["dragonvite", "shared"],
+  "keywords": [
+    "dragonvite",
+    "shared"
+  ],
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.10.0"
+  }
 }

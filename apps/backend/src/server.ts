@@ -8,7 +8,6 @@ import fastifyHelmet from '@fastify/helmet';
 import fastifyRateLimit from '@fastify/rate-limit';
 import fastifyWebsocket from '@fastify/websocket';
 import fastifyCors from '@fastify/cors';
-import pino from 'pino';
 import { loadConfig, getConfig } from './config.js';
 import { healthRouter } from './routes/health.js';
 import { setupSocketIO } from './socket/index.js';
@@ -19,14 +18,12 @@ import { setupSocketIO } from './socket/index.js';
 async function createServer() {
   const config = getConfig();
 
-  // Setup logger
-  const logger = pino(
-    config.LOG_LEVEL === 'debug' ? { transport: { target: 'pino-pretty' } } : undefined
-  );
-
-  // Create Fastify instance
+  // Create Fastify instance with built-in pino logger
   const fastify = Fastify({
-    logger,
+    logger:
+      config.LOG_LEVEL === 'debug'
+        ? { transport: { target: 'pino-pretty' } }
+        : true,
   });
 
   // Register plugins
@@ -45,7 +42,7 @@ async function createServer() {
   await fastify.register(fastifyRateLimit, {
     max: 100,
     timeWindow: '15 minutes',
-    allowList: [{ route: '/health', numRequests: 1000 }],
+    allowList: ['/health', '/api/health'],
   });
 
   // CORS
@@ -59,12 +56,12 @@ async function createServer() {
 
   // Request logging
   fastify.addHook('onRequest', async (request, _reply) => {
-    logger.debug({ method: request.method, url: request.url }, 'Incoming request');
+    fastify.log.debug({ method: request.method, url: request.url }, 'Incoming request');
   });
 
   // Error handler
-  fastify.setErrorHandler((error, request, reply) => {
-    logger.error({ error }, 'Unhandled error');
+  fastify.setErrorHandler((error, _request, reply) => {
+    fastify.log.error({ error }, 'Unhandled error');
 
     if (error.statusCode === 429) {
       return reply.status(429).send({ error: 'Too many requests' });
@@ -84,7 +81,7 @@ async function createServer() {
   await fastify.register(healthRouter, { prefix: '/api' });
 
   // Socket.io setup
-  await setupSocketIO(fastify, logger);
+  await setupSocketIO(fastify);
 
   return fastify;
 }
@@ -105,8 +102,8 @@ async function startServer() {
     await fastify.listen({ port: config.PORT, host: config.HOST });
 
     fastify.log.info(
-      `🚀 Server running on http://${config.HOST}:${config.PORT}`,
-      { environment: config.NODE_ENV }
+      { environment: config.NODE_ENV },
+      `Server running on http://${config.HOST}:${config.PORT}`
     );
 
     // Graceful shutdown

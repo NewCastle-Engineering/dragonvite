@@ -198,7 +198,11 @@ importers:
         specifier: ^5.7.0
         version: 5.22.0
 
-  packages/shared: {}
+  packages/shared:
+    devDependencies:
+      '@types/node':
+        specifier: ^20.10.0
+        version: 20.19.37
 
 packages:
 

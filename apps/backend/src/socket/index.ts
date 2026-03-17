@@ -3,17 +3,20 @@
  * Real-time communication for game updates, chat, etc.
  */
 
-import { FastifyInstance } from 'fastify';
+import type { FastifyBaseLogger, FastifyInstance } from 'fastify';
 import { Server as SocketIOServer } from 'socket.io';
-import pino from 'pino';
+import * as http from 'http';
 
 let io: SocketIOServer;
 
 /**
  * Setup Socket.io on Fastify server
  */
-export async function setupSocketIO(fastify: FastifyInstance, logger: pino.Logger) {
-  io = new SocketIOServer(fastify.server, {
+export async function setupSocketIO(fastify: FastifyInstance): Promise<void> {
+  const logger: FastifyBaseLogger = fastify.log;
+  const server = fastify.server as unknown as http.Server;
+
+  io = new SocketIOServer(server, {
     cors: {
       origin: process.env.CORS_ORIGIN || 'http://localhost',
       credentials: true,
