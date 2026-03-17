@@ -4,12 +4,12 @@ A production-ready monorepo for Dragonvite — a real-time browser game built wi
 
 ## Prerequisites
 
-| Tool | Version |
-|------|---------|
-| [Node.js](https://nodejs.org/) | >= 18.17.0 |
-| [pnpm](https://pnpm.io/installation) | >= 8.0.0 |
-| [Docker Desktop](https://www.docker.com/products/docker-desktop/) | Latest |
-| [Git](https://git-scm.com/) | Latest |
+| Tool                                                              | Version    |
+| ----------------------------------------------------------------- | ---------- |
+| [Node.js](https://nodejs.org/)                                    | >= 18.17.0 |
+| [pnpm](https://pnpm.io/installation)                              | >= 8.0.0   |
+| [Docker Desktop](https://www.docker.com/products/docker-desktop/) | Latest     |
+| [Git](https://git-scm.com/)                                       | Latest     |
 
 > **Note:** Docker Desktop must be running before you start any dev commands.
 
@@ -50,13 +50,13 @@ pnpm dev
 
 On first run Docker will pull and build images — this takes a few minutes.
 
-| Service | URL | Description |
-|---------|-----|-------------|
-| Frontend | http://localhost | React app (served by Nginx) |
-| Backend API | http://localhost/api | Fastify REST API |
-| WebSocket | http://localhost/socket.io | Socket.io |
-| Bull Board | http://localhost:3001 | Job queue dashboard |
-| SonarQube | http://localhost:9000 | Code quality (admin/admin) |
+| Service     | URL                        | Description                 |
+| ----------- | -------------------------- | --------------------------- |
+| Frontend    | http://localhost           | React app (served by Nginx) |
+| Backend API | http://localhost/api       | Fastify REST API            |
+| WebSocket   | http://localhost/socket.io | Socket.io                   |
+| Bull Board  | http://localhost:3001      | Job queue dashboard         |
+| SonarQube   | http://localhost:9000      | Code quality (admin/admin)  |
 
 ## Development Commands
 
@@ -152,13 +152,13 @@ SonarQube takes 1–2 minutes to initialize on first boot. Wait for the log line
 
 GitHub Actions runs automatically on every PR and push to `main`:
 
-| Workflow | Trigger | What it does |
-|----------|---------|--------------|
-| `lint.yml` | PR + push to main | ESLint + Prettier |
-| `test.yml` | PR + push to main | Vitest unit tests |
-| `build.yml` | PR + push to main | Docker build validation |
+| Workflow        | Trigger           | What it does                   |
+| --------------- | ----------------- | ------------------------------ |
+| `lint.yml`      | PR + push to main | ESLint + Prettier              |
+| `test.yml`      | PR + push to main | Vitest unit tests              |
+| `build.yml`     | PR + push to main | Docker build validation        |
 | `sonarqube.yml` | PR + push to main | Code quality gate (SonarCloud) |
-| `deploy.yml` | **Manual only** | SSH deploy to Oracle Cloud |
+| `deploy.yml`    | **Manual only**   | SSH deploy to Oracle Cloud     |
 
 ## Deployment
 
