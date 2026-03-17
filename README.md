@@ -1,358 +1,196 @@
-# Dragonvite Monorepo
+# Dragonvite
 
-> A production-ready monorepo scaffold for Dragonvite using Turborepo, Node.js, React, and a modern tech stack.
+A production-ready monorepo for Dragonvite — a real-time browser game built with React, Fastify, and Supabase.
 
-## 🚀 Quick Start
+## Prerequisites
 
-### Prerequisites
+| Tool | Version |
+|------|---------|
+| [Node.js](https://nodejs.org/) | >= 18.17.0 |
+| [pnpm](https://pnpm.io/installation) | >= 8.0.0 |
+| [Docker Desktop](https://www.docker.com/products/docker-desktop/) | Latest |
+| [Git](https://git-scm.com/) | Latest |
 
-- Node.js >= 18.17.0
-- pnpm >= 8.0.0
-- Docker & Docker Compose (for local development with all services)
-- Git
+> **Note:** Docker Desktop must be running before you start any dev commands.
 
-### Installation
+## Getting Started
 
-1. **Clone the repository:**
+### 1. Clone the repo
 
 ```bash
 git clone <repo-url>
 cd dragonvite
 ```
 
-2. **Install dependencies:**
+### 2. Install dependencies
 
 ```bash
 pnpm install
 ```
 
-3. **Setup environment variables:**
+### 3. Configure environment variables
 
-```bash
-cp .env.example .env.local
-# Edit .env.local with your configuration
-```
+Get `.env.local` from the team (shared out of band), and place it in the repo root. It contains all the credentials needed to connect to the shared dev database and services.
 
-4. **Using Doppler (recommended for team):**
+If you need to see what variables are required, `.env.example` in the repo root documents all of them.
 
-```bash
-# Install Doppler CLI: https://docs.doppler.com/docs/cli
-doppler login
-
-# Run development with injected secrets
-doppler run pnpm dev
-```
-
-### Development
-
-**Start all services locally with Docker Compose:**
-
-```bash
-pnpm dev
-```
-
-This starts:
-
-- **Frontend** (port 80 via Nginx): http://localhost
-- **Backend API** (internal port 3000): Proxied via Nginx to `/api`
-- **Redis** (port 6379): Cache & job queue
-- **Bull Board** (port 3001): Job queue UI - http://localhost:3001
-- **SonarQube** (port 9000): Code quality dashboard - http://localhost:9000
-
-**Run individual commands:**
-
-```bash
-pnpm build          # Build all apps and packages
-pnpm test           # Run all tests
-pnpm lint           # Lint all code
-pnpm format         # Format all code
-pnpm type-check     # Type check all packages
-```
-
-## 📁 Project Structure
-
-```
-dragonvite/
-├── apps/
-│   ├── frontend/           # Vite + React + TypeScript
-│   │   └── src/
-│   │       ├── components/ # React components
-│   │       ├── pages/      # Page components
-│   │       ├── hooks/      # Custom hooks
-│   │       ├── store/      # Zustand stores
-│   │       └── utils/      # Utilities
-│   └── backend/            # Fastify + TypeScript
-│       └── src/
-│           ├── routes/     # API endpoints
-│           ├── services/   # Business logic
-│           ├── jobs/       # BullMQ jobs
-│           └── utils/      # Utilities
-├── packages/
-│   ├── shared/             # Shared types, constants, utils
-│   └── database/           # Prisma schema & migrations
-├── .github/
-│   └── workflows/          # CI/CD workflows (GitHub Actions)
-├── docker-compose.yml      # Local development services
-├── Dockerfile              # Backend container
-├── nginx.conf              # Reverse proxy config
-└── README.md               # This file
-```
-
-## 🛠️ Technology Stack
-
-### Frontend
-
-- **Vite** – Fast build tool & dev server
-- **React 18** – UI framework
-- **TypeScript** – Type safety
-- **TanStack Query** – Server state management & caching
-- **Zustand** – Client state management
-- **Material UI** – Component library
-- **React Konva** – Canvas rendering for game map
-
-### Backend
-
-- **Fastify** – High-performance HTTP server
-- **TypeScript** – Type safety
-- **Socket.io** – Real-time WebSocket communication
-- **Prisma** – Type-safe ORM
-- **Zod** – Input validation
-- **BullMQ** – Redis-backed job queue
-- **Pino** – Structured logging
-
-### Infrastructure
-
-- **Docker & Docker Compose** – Local development
-- **Nginx** – Reverse proxy & static file server
-- **Redis** – Cache & job queue storage
-- **Supabase** – PostgreSQL database (managed)
-- **Doppler** – Secrets management
-- **SonarQube** – Code quality analysis
-- **GitHub Actions** – CI/CD
-
-### Deployment
-
-- **Oracle Cloud Always Free** – $0/month hosting (2 vCPU, 4GB RAM VMs)
-- **Cloudflare R2** – Object storage
-- **Cloudflare CDN** – Content delivery
-- **Sentry** – Error tracking
-
-## 🔧 Common Tasks
-
-### Database
-
-**Push schema changes to dev:**
+### 4. Push the database schema
 
 ```bash
 pnpm db:push
 ```
 
-**Create a migration:**
+This syncs the Prisma schema to the Supabase database. Run once on first setup and whenever the schema changes.
+
+### 5. Start the stack
 
 ```bash
-pnpm db:migrate
+pnpm dev
 ```
 
-**Open Prisma Studio:**
+On first run Docker will pull and build images — this takes a few minutes.
+
+| Service | URL | Description |
+|---------|-----|-------------|
+| Frontend | http://localhost | React app (served by Nginx) |
+| Backend API | http://localhost/api | Fastify REST API |
+| WebSocket | http://localhost/socket.io | Socket.io |
+| Bull Board | http://localhost:3001 | Job queue dashboard |
+| SonarQube | http://localhost:9000 | Code quality (admin/admin) |
+
+## Development Commands
 
 ```bash
-pnpm db:studio
+pnpm build          # Build all packages
+pnpm test           # Run all tests (Vitest)
+pnpm test:e2e       # Run Playwright E2E tests
+pnpm lint           # ESLint check
+pnpm format         # Format with Prettier
+pnpm type-check     # TypeScript type check across all packages
 ```
 
-### Testing
-
-**Run all tests:**
+### Single package
 
 ```bash
-pnpm test
+pnpm --filter @dragonvite/backend test
+pnpm --filter @dragonvite/frontend test
 ```
 
-**Watch mode:**
+## Project Structure
+
+```
+dragonvite/
+├── apps/
+│   ├── frontend/           # Vite + React 18 + TypeScript
+│   │   └── src/
+│   │       ├── components/
+│   │       ├── pages/
+│   │       ├── hooks/
+│   │       ├── store/      # Zustand
+│   │       └── utils/
+│   └── backend/            # Fastify + TypeScript
+│       └── src/
+│           ├── routes/     # REST endpoints
+│           ├── services/   # Business logic
+│           ├── jobs/       # BullMQ workers
+│           └── config.ts   # Zod-validated env vars
+├── packages/
+│   ├── shared/             # Shared types, constants, utils
+│   └── database/           # Prisma schema & migrations
+├── .github/workflows/      # GitHub Actions CI/CD
+├── docker-compose.yml
+├── Dockerfile
+└── nginx.conf
+```
+
+## Database
 
 ```bash
-pnpm test -- --watch
+pnpm db:push        # Sync schema to dev DB (no migration file created)
+pnpm db:migrate     # Create a new migration file
+pnpm db:studio      # Open Prisma Studio (visual DB browser)
 ```
 
-**Run E2E tests:**
+## Troubleshooting
+
+**Containers fail to start**
 
 ```bash
-pnpm test:e2e
-```
-
-### Code Quality
-
-**Run SonarQube analysis locally:**
-
-```bash
-pnpm sonar
-```
-
-**Access SonarQube dashboard:**
-
-- URL: http://localhost:9000
-- Default login: admin / admin
-- Change password on first login
-
-### Building for Production
-
-```bash
-pnpm build
-```
-
-This:
-
-1. Type-checks all packages
-2. Builds the Docker image
-3. Prepares frontend static files
-4. Generates Prisma client
-
-## 🚢 Deployment
-
-### Oracle Cloud Always Free
-
-1. **Create an Oracle VM** ($0/month, always free tier)
-
-   ```bash
-   # Ubuntu 22.04 LTS, 2 ARM vCPU, 4GB RAM
-   ```
-
-2. **Install Docker & Docker Compose on the VM**
-
-   ```bash
-   sudo apt update && sudo apt install -y docker.io docker-compose-plugin
-   sudo usermod -aG docker $USER
-   ```
-
-3. **Clone repo and start services**
-
-   ```bash
-   git clone <repo-url>
-   cd dragonvite
-   doppler login  # Authenticate with Doppler
-   docker-compose up -d
-   ```
-
-4. **Access your deployment**
-   - Frontend: `http://<oracle-ip>`
-   - Bull Board: `http://<oracle-ip>:3001`
-   - Backend API: `http://<oracle-ip>/api/*`
-
-### GitHub Actions CI/CD
-
-Workflows automatically run on PR and merge to `main`:
-
-- `lint.yml` – ESLint + Prettier
-- `test.yml` – Vitest tests
-- `build.yml` – Docker build verification
-- `sonarqube.yml` – Code quality gate
-- `deploy.yml` – Deploy to Oracle Cloud (on merge to main)
-
-## 📊 SonarQube Setup
-
-**First-time setup:**
-
-1. Access http://localhost:9000
-2. Login with default credentials: admin / admin
-3. Change password immediately
-4. Create a token:
-   - Administration → Security → Users → Tokens
-   - Create token: `sonar_${project-key}`
-   - Save token to GitHub Secrets as `SONAR_TOKEN`
-
-**Viewing analysis:**
-
-- Dashboard shows issues, bugs, code smells, coverage
-- Quality gates fail builds if gate not met
-
-## 📝 Environment Variables
-
-See `.env.example` for all required variables. Key variables:
-
-```env
-# Database
-DATABASE_URL=postgresql://user:password@host:5432/db
-
-# Frontend
-VITE_API_URL=http://localhost/api
-VITE_WS_URL=http://localhost
-
-# Backend
-REDIS_URL=redis://redis:6379
-JWT_SECRET=your-secret
-
-# External services
-RESEND_API_KEY=your-api-key
-OLLAMA_API_URL=http://ollama-host:11434
-SENTRY_DSN=https://your-sentry-dsn
-```
-
-**Using Doppler:**
-
-```bash
-doppler run pnpm dev  # Inject all secrets automatically
-```
-
-## 🔒 Security
-
-- **Helmet** – HTTP security headers
-- **CORS** – Cross-Origin Resource Sharing
-- **Rate Limiting** – Per-IP request throttling
-- **Zod validation** – Input sanitization
-- **Prisma parameterized queries** – SQL injection prevention
-- **JWT authentication** – Secure token-based auth
-
-## 📚 Documentation
-
-- [DEVELOPMENT.md](./DEVELOPMENT.md) – Detailed dev setup & debugging
-- [ARCHITECTURE.md](./ARCHITECTURE.md) – System architecture & data flows
-- [Tech Plan](../plans/dragon_vite_tech_plan.md) – Comprehensive tech stack rationale
-
-## 🆘 Troubleshooting
-
-**Docker Compose fails to start:**
-
-```bash
-docker-compose down -v      # Remove all containers and volumes
+docker-compose down -v      # Tear down containers and volumes
 docker-compose up --build   # Rebuild from scratch
 ```
 
-**Prisma migration errors:**
+**`.env.local` missing**
+
+Docker Compose will fail to start the backend without this file. Make sure it's in the repo root — get it from the team if you don't have it.
+
+**Backend crashes on startup with config errors**
+
+All required env vars are validated at boot via Zod. Check the error message — it will name the missing or invalid variable. Make sure `.env.local` is complete and has no stray quotes or whitespace.
+
+**Port already in use**
 
 ```bash
-pnpm db:reset   # Reset database (dev only!)
-pnpm db:push    # Sync schema
-```
-
-**Port conflicts:**
-
-```bash
-# Check what's using port 80, 3000, etc.
+# macOS / Linux
 lsof -i :80
-# Kill the process
 kill -9 <PID>
+
+# Windows (PowerShell)
+netstat -ano | findstr :80
+taskkill /PID <PID> /F
 ```
 
-**SonarQube password reset:**
+**`pnpm db:push` fails**
+
+Verify your `DATABASE_URL` in `.env.local` is correct and that the Supabase project is fully provisioned.
+
+**SonarQube is slow to start**
+
+SonarQube takes 1–2 minutes to initialize on first boot. Wait for the log line `SonarQube is operational` before trying to access it.
+
+## CI/CD
+
+GitHub Actions runs automatically on every PR and push to `main`:
+
+| Workflow | Trigger | What it does |
+|----------|---------|--------------|
+| `lint.yml` | PR + push to main | ESLint + Prettier |
+| `test.yml` | PR + push to main | Vitest unit tests |
+| `build.yml` | PR + push to main | Docker build validation |
+| `sonarqube.yml` | PR + push to main | Code quality gate (SonarCloud) |
+| `deploy.yml` | **Manual only** | SSH deploy to Oracle Cloud |
+
+## Deployment
+
+Production runs on Oracle Cloud Always Free (2 ARM vCPU, 4 GB RAM).
+
+**First-time VM setup:**
 
 ```bash
-# Access SonarQube container shell
-docker exec -it dragonvite-sonarqube bash
-# Use admin interface at http://localhost:9000
+sudo apt update && sudo apt install -y docker.io docker-compose-plugin
+sudo usermod -aG docker $USER
+newgrp docker
 ```
 
-## 📄 License
+**Deploy:**
+
+```bash
+git clone <repo-url>
+cd dragonvite
+# Place .env.local with production values in the repo root
+docker compose up -d
+```
+
+Or trigger the `deploy.yml` workflow manually from the GitHub Actions tab (requires `ORACLE_HOST`, `ORACLE_USER`, and `ORACLE_SSH_KEY` in GitHub Secrets).
+
+## Tech Stack
+
+**Frontend:** React 18, Vite, TypeScript, MUI, TanStack Query, Zustand, React Konva, Socket.io
+
+**Backend:** Fastify, TypeScript, Prisma, Socket.io, BullMQ, Zod, Pino
+
+**Infrastructure:** Docker Compose, Nginx, Redis, Supabase (PostgreSQL), SonarQube, GitHub Actions
+
+## License
 
 MIT
-
-## 🤝 Contributing
-
-1. Create a feature branch: `git checkout -b feature/name`
-2. Commit changes: `git commit -m "feat: description"`
-3. Push branch: `git push origin feature/name`
-4. Open Pull Request
-
-All PRs must pass linting, testing, and code quality gates before merging.
-
-## 📞 Support
-
-For issues or questions, open a GitHub issue or contact the team.
