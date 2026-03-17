@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc --noEmit && echo 'Build complete'",
+    "build": "tsc",
     "start": "node dist/server.js",
     "lint": "eslint src",
     "format": "prettier --write src",
