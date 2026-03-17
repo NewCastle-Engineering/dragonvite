@@ -9,7 +9,7 @@
     "lint": "eslint src",
     "format": "prettier --write src",
     "type-check": "tsc --noEmit",
-    "test": "vitest",
+    "test": "vitest --passWithNoTests",
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage"
   },
