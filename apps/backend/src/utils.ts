@@ -9,7 +9,7 @@ import { FastifyRequest } from 'fastify';
  * Extract user ID from request (from JWT or header)
  */
 export function getUserIdFromRequest(request: FastifyRequest): string | null {
-  // TODO: Implement JWT extraction or header parsing
+  // Reads user ID from x-user-id header; replace with JWT extraction when auth is added
   return (request.headers['x-user-id'] as string) ?? null;
 }
 

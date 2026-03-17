@@ -5,7 +5,7 @@
 
 import type { FastifyBaseLogger, FastifyInstance } from 'fastify';
 import { Server as SocketIOServer } from 'socket.io';
-import * as http from 'http';
+import * as http from 'node:http';
 
 let io: SocketIOServer;
 

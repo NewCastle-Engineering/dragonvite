@@ -86,40 +86,26 @@ async function createServer() {
   return fastify;
 }
 
-/**
- * Start the server
- */
-async function startServer() {
-  try {
-    // Load config
-    loadConfig();
-    const config = getConfig();
+// Load config
+loadConfig();
+const config = getConfig();
 
-    // Create server
-    const fastify = await createServer();
+// Create and start server
+const fastify = await createServer();
 
-    // Start listening
-    await fastify.listen({ port: config.PORT, host: config.HOST });
+await fastify.listen({ port: config.PORT, host: config.HOST });
 
-    fastify.log.info(
-      { environment: config.NODE_ENV },
-      `Server running on http://${config.HOST}:${config.PORT}`
-    );
+fastify.log.info(
+  { environment: config.NODE_ENV },
+  `Server running on http://${config.HOST}:${config.PORT}`
+);
 
-    // Graceful shutdown
-    const signals = ['SIGTERM', 'SIGINT'] as const;
-    for (const signal of signals) {
-      process.on(signal, async () => {
-        fastify.log.info(`Received ${signal}, shutting down gracefully...`);
-        await fastify.close();
-        process.exit(0);
-      });
-    }
-  } catch (error) {
-    console.error('Failed to start server:', error);
-    process.exit(1);
-  }
+// Graceful shutdown
+const signals = ['SIGTERM', 'SIGINT'] as const;
+for (const signal of signals) {
+  process.on(signal, async () => {
+    fastify.log.info(`Received ${signal}, shutting down gracefully...`);
+    await fastify.close();
+    process.exit(0);
+  });
 }
-
-// Start server
-startServer();

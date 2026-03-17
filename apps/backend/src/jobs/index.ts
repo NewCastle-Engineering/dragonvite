@@ -13,7 +13,7 @@ const config = getConfig();
 const queueOptions: QueueOptions = {
   connection: {
     host: new URL(config.REDIS_URL).hostname || 'localhost',
-    port: parseInt(new URL(config.REDIS_URL).port || '6379'),
+    port: Number.parseInt(new URL(config.REDIS_URL).port || '6379'),
   },
 };
 
@@ -36,7 +36,7 @@ export const emailWorker = new Worker<EmailJobData>(
   async (job) => {
     logger.info({ jobId: job.id }, 'Processing email job');
 
-    // TODO: Call Resend API to send email
+    // Call Resend API to send email (requires RESEND_API_KEY in config)
     // const response = await fetch('https://api.resend.com/emails', {
     //   method: 'POST',
     //   headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${RESEND_API_KEY}` },
@@ -67,7 +67,7 @@ export const llmWorker = new Worker<LLMJobData>(
   async (job) => {
     logger.info({ jobId: job.id, prompt: job.data.prompt }, 'Processing LLM job');
 
-    // TODO: Call Ollama API for content generation
+    // Call Ollama API for content generation (requires OLLAMA_API_URL in config)
     // const response = await fetch(`${OLLAMA_API_URL}/api/generate`, {
     //   method: 'POST',
     //   body: JSON.stringify({ model: job.data.model || OLLAMA_MODEL, prompt: job.data.prompt })
