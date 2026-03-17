@@ -9,6 +9,8 @@ build/
 .next/
 out/
 *.tsbuildinfo
+# TypeScript emitted JS (Vite handles bundling, tsc is type-check only)
+apps/frontend/src/**/*.js
 
 # IDE
 .vscode/
