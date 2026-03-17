@@ -25,7 +25,8 @@
     "build": "tsc --noEmit && echo 'Shared package uses TypeScript - import directly from src'",
     "lint": "eslint src",
     "format": "prettier --write src",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "test": "vitest run --coverage --passWithNoTests"
   },
   "keywords": [
     "dragonvite",
@@ -34,6 +35,7 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^20.10.0"
+    "@types/node": "^20.10.0",
+    "vitest": "^1.0.0"
   }
 }

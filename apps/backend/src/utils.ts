@@ -10,7 +10,7 @@ import { FastifyRequest } from 'fastify';
  */
 export function getUserIdFromRequest(request: FastifyRequest): string | null {
   // TODO: Implement JWT extraction or header parsing
-  return request.headers['x-user-id'] as string | null;
+  return (request.headers['x-user-id'] as string) ?? null;
 }
 
 /**

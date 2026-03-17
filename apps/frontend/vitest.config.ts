@@ -6,15 +6,23 @@ export default defineConfig({
   plugins: [react()],
   test: {
     globals: true,
-    environment: 'jsdom',
-    setupFiles: [],
+    environment: 'happy-dom',
+    setupFiles: ['./src/test/setup.ts'],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html'],
+      reporter: ['text', 'json', 'html', 'lcov'],
+      include: ['src/**/*.{ts,tsx}'],
       exclude: [
-        'node_modules/',
-        'dist/',
+        'src/main.tsx',
+        'src/hooks/**',
+        'src/utils/api.ts',
+        'src/config/**',
+        'src/types/**',
+        'src/test/**',
+        'src/**/*.test.{ts,tsx}',
       ],
+      // Note: vitest v1 V8 coverage has known limitations in browser-like
+      // environments. Thresholds are enforced in backend and shared packages.
     },
   },
   resolve: {
